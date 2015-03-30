@@ -62,7 +62,7 @@ scrollToBottom el = getProp el "scrollHeight" >>= setProp el "scrollTop"
 
 -- | Client entry point.
 clientMain :: API -> Client ()
-clientMain api = withElems ["name","message","chat"] $ \[name, msg, chat] -> do
+clientMain api = withElems ["name","message","chat"] $ \[name, message, chat] -> do
   -- Tell the server we're here, and fill out our backlog.
   -- The backlog is stored with newest messags first, so we need to reverse it.
   backlog <- map (\(n, m) -> n ++ ": " ++ m) <$> onServer (apiHello api)
@@ -76,12 +76,12 @@ clientMain api = withElems ["name","message","chat"] $ \[name, msg, chat] -> do
          in awaitLoop backlog
 
   -- Send a message if the user hits return (charcode 13)
-  msg `onEvent` KeyDown $ \k -> do
+  message `onEvent` KeyDown $ \k -> do
     case k of
       13 -> do
-        m <- getProp msg "value"
+        m <- getProp message "value"
         n <- getProp name "value"
-        setProp msg "value" ""
+        setProp message "value" ""
         onServer $ apiSend api <.> (n :: String) <.> (m :: String)
       _ -> do
         return ()
